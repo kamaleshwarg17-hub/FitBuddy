@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Header & Statistics Cards -->
+<div style="margin-bottom: 2.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+        <div>
+            <h1 style="font-size: 2.2rem; font-weight: 800;">
+                Admin & Coach Dashboard
+            </h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.25rem;">
+                Audit registered athletes, inspect AI-generated workout routines, and track feedback adaptations.
+            </p>
+        </div>
+
+        <div style="display: flex; gap: 1rem;">
+            <a href="/" class="btn btn-primary btn-sm">
+                + Register New Athlete
+            </a>
+            <a href="/api/users" target="_blank" class="btn btn-secondary btn-sm">
+                { } View JSON API
+            </a>
+        </div>
+    </div>
+
+    <!-- Admin Stat Metrics -->
+    <div class="admin-stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-cyan">👥</div>
+            <div>
+                <h3 style="font-size: 1.8rem; line-height: 1;">{{ total_users }}</h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Total Athletes</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-amber">🔄</div>
+            <div>
+                <h3 style="font-size: 1.8rem; line-height: 1;">{{ updated_count }}</h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Feedback Revisions</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-green">⚡</div>
+            <div>
+                <h3 style="font-size: 1.8rem; line-height: 1;">Gemini</h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">1.5 Pro & Flash Active</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main User Table Card -->
+<section class="glass-card">
+    <div class="card-header-bar" style="flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 class="card-title">
+                📋 Registered Users & Fitness Records
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">
+                Click on any user's plan to expand and view the complete 7-day schedule.
+            </p>
+        </div>
+
+        <!-- Filter & Search Controls -->
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <input 
+                type="text" 
+                id="admin-search-input" 
+                class="form-control" 
+                placeholder="🔍 Search name or ID..." 
+                style="max-width: 220px; padding-left: 1rem;"
+            >
+            <select id="admin-goal-filter" class="form-control" style="max-width: 180px; padding-left: 1rem;">
+                <option value="">All Goals</option>
+                <option value="Muscle">Muscle Gain</option>
+                <option value="Loss">Weight Loss</option>
+                <option value="Cardio">Cardio / Conditioning</option>
+                <option value="Mobility">Mobility / Wellness</option>
+            </select>
+        </div>
+    </div>
+
+    {% if users_data and users_data|length > 0 %}
+    <div class="table-responsive">
+        <table class="custom-table" id="users-table">
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Name</th>
+                    <th>Metrics</th>
+                    <th>Goal & Intensity</th>
+                    <th>Original Plan</th>
+                    <th>Updated Plan</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in users_data %}
+                <tr class="user-table-row" data-goal="{{ item.user.goal }}">
+                    <!-- User ID -->
+                    <td>
+                        <strong style="color: var(--primary);">{{ item.user.user_id }}</strong>
+                    </td>
+
+                    <!-- Name -->
+                    <td>
+                        <div style="font-weight: 600;">{{ item.user.username }}</div>
+                        <small style="color: var(--text-dim);">
+                            {{ item.user.created_at.strftime('%b %d, %Y') if item.user.created_at else 'Recent' }}
+                        </small>
+                    </td>
+
+                    <!-- Metrics -->
+                    <td>
+                        <div>{{ item.user.age }} yrs</div>
+                        <div style="color: var(--text-muted); font-size: 0.8rem;">{{ item.user.weight }} kg</div>
+                    </td>
+
+                    <!-- Goal & Intensity -->
+                    <td>
+                        <div style="font-weight: 500;">{{ item.user.goal }}</div>
+                        <span class="intensity-badge {% if item.user.intensity == 'High' %}badge-high{% elif item.user.intensity == 'Low' %}badge-low{% else %}badge-medium{% endif %}">
+                            {{ item.user.intensity }}
+                        </span>
+                    </td>
+
+                    <!-- Original Plan Preview -->
+                    <td>
+                        {% if item.plan and item.plan.original_plan %}
+                        <details style="cursor: pointer;">
+                            <summary style="color: var(--primary); font-size: 0.85rem; font-weight: 600;">
+                                👁️ View Original
+                            </summary>
+                            <div style="margin-top: 0.5rem; max-width: 320px;">
+                                <pre style="background: #080c14; padding: 0.75rem; border-radius: 6px; font-size: 0.75rem; max-height: 180px; overflow-y: auto; color: #cbd5e1;">{{ item.plan.original_plan }}</pre>
+                            </div>
+                        </details>
+                        {% else %}
+                        <span style="color: var(--text-dim); font-size: 0.85rem;">None</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Updated Plan Preview -->
+                    <td>
+                        {% if item.has_updated_plan %}
+                        <details style="cursor: pointer;">
+                            <summary style="color: var(--accent); font-size: 0.85rem; font-weight: 600;">
+                                ★ View Updated
+                            </summary>
+                            <div style="margin-top: 0.5rem; max-width: 320px;">
+                                <p style="font-size: 0.75rem; color: #f97316; margin-bottom: 0.25rem;">
+                                    <strong>Feedback:</strong> "{{ item.plan.feedback }}"
+                                </p>
+                                <pre style="background: #080c14; padding: 0.75rem; border-radius: 6px; font-size: 0.75rem; max-height: 180px; overflow-y: auto; color: #cbd5e1;">{{ item.plan.updated_plan }}</pre>
+                            </div>
+                        </details>
+                        {% else %}
+                        <span style="color: var(--text-dim); font-size: 0.85rem;">Not revised</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Actions -->
+                    <td>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <form action="/delete-user/{{ item.user.user_id }}" method="POST" onsubmit="return confirm('Are you sure you want to delete user {{ item.user.username }}?');">
+                                <button type="submit" class="btn btn-sm btn-danger" title="Delete Athlete">
+                                    🗑️
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem 1rem;">
+        <span style="font-size: 3rem;">📭</span>
+        <h3 style="margin-top: 1rem; color: #ffffff;">No Users Registered Yet</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">
+            Head over to the Plan Generator to create the first AI fitness routine.
+        </p>
+        <div style="margin-top: 1.5rem;">
+            <a href="/" class="btn btn-primary btn-sm">
+                + Generate First Plan
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</section>
+
+{% endblock %}

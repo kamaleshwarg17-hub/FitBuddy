@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FitBuddy - AI-Powered 7-Day Workout and Nutrition Plan Generator using Google Gemini 1.5 Pro and Flash models.">
+    <title>{{ title if title else "FitBuddy – AI Fitness Plan Generator" }}</title>
+    
+    <!-- Google Fonts: Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" type="image/png" href="/static/images/logo.png">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <nav class="navbar" aria-label="Main Navigation">
+            <div class="nav-container">
+                <a href="/" class="brand-link" id="nav-brand-logo">
+                    <img src="/static/images/logo.png" alt="FitBuddy AI Logo" class="brand-logo">
+                    <span class="brand-title">FitBuddy</span>
+                    <span class="brand-badge">Gemini AI</span>
+                </a>
+
+                <ul class="nav-links">
+                    <li class="nav-item">
+                        <a href="/" id="nav-link-generator">Generate Plan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/view-all-users" id="nav-link-admin">Admin Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/docs" target="_blank" rel="noopener noreferrer" id="nav-link-api">API Docs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/" class="btn btn-sm btn-nav-action" id="nav-cta-plan">+ New Plan</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Dynamic Content -->
+    <main class="main-wrapper" id="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- AI Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay" aria-live="polite">
+        <div class="spinner"></div>
+        <h3 style="color: #ffffff; font-size: 1.35rem;" id="loading-status-text">
+            Gemini AI is processing your request...
+        </h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">
+            Analyzing physiological metrics, progressive overload, and micronutrient balance.
+        </p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>© 2026 FitBuddy AI. Built with FastAPI, SQLite, and Google Gemini Models.</p>
+            <div style="display: flex; gap: 1.5rem; align-items: center;">
+                <span style="font-size: 0.85rem; color: var(--primary);">● Core Engine: Gemini 1.5 Pro</span>
+                <span style="font-size: 0.85rem; color: var(--accent);">⚡ Nutrition Engine: Gemini Flash</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
