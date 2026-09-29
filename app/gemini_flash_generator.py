@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 def _get_fallback_nutrition_tip(goal: str, user_details: Optional[Dict[str, Any]] = None) -> str:
     """
     Returns curated, high-impact nutrition and recovery guidance based on goal.
-    Used when Gemini Flash API key is missing or offline.
+    Used when the Gemini API key is missing or offline.
     """
     g = goal.lower()
     if "muscle" in g or "bulk" in g or "strength" in g:
@@ -52,7 +52,7 @@ def _get_fallback_nutrition_tip(goal: str, user_details: Optional[Dict[str, Any]
 
 def generate_nutrition_tip_with_flash(goal: str, user_details: Optional[Dict[str, Any]] = None) -> str:
     """
-    Generates a concise, practical nutrition and recovery tip tailored to the user's goal using Gemini Flash.
+    Generates a concise, practical nutrition and recovery tip tailored to the user's goal using Gemini 3.8 Flash.
     """
     api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
     
@@ -68,20 +68,16 @@ Guidelines:
 
     if api_key:
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=api_key)
-            
-            # Prefer Gemini 1.5 Flash for speed & efficiency
-            for model_name in ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]:
-                try:
-                    model = genai.GenerativeModel(model_name)
-                    response = model.generate_content(prompt)
-                    if response and response.text:
-                        return response.text.strip()
-                except Exception as model_err:
-                    logger.warning(f"Flash model {model_name} failed: {model_err}. Trying next...")
-                    continue
+            from google import genai
+
+            client = genai.Client(api_key=api_key)
+            response = client.models.generate_content(
+                model="gemini-3.8-flash",
+                contents=prompt,
+            )
+            if response and response.text:
+                return response.text.strip()
         except Exception as e:
-            logger.error(f"Gemini Flash API error: {e}")
+            logger.warning("Gemini nutrition generation failed; using fallback: %s", e)
 
     return _get_fallback_nutrition_tip(goal, user_details)

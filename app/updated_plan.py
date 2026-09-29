@@ -44,7 +44,7 @@ def update_workout_plan(
     user_details: Optional[Dict[str, Any]] = None
 ) -> str:
     """
-    Revises an existing 7-day workout plan using Gemini 1.5 Pro based on user feedback.
+    Revises an existing 7-day workout plan using Google Gemini based on user feedback.
     """
     api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
 
@@ -81,19 +81,16 @@ Instructions for Revision:
 
     if api_key:
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=api_key)
-            
-            for model_name in ["gemini-1.5-pro", "gemini-1.5-flash", "gemini-pro"]:
-                try:
-                    model = genai.GenerativeModel(model_name)
-                    response = model.generate_content(prompt)
-                    if response and response.text:
-                        return response.text.strip()
-                except Exception as model_err:
-                    logger.warning(f"Plan update model {model_name} failed: {model_err}. Retrying next...")
-                    continue
+            from google import genai
+
+            client = genai.Client(api_key=api_key)
+            response = client.models.generate_content(
+                model="gemini-3.8-flash",
+                contents=prompt,
+            )
+            if response and response.text:
+                return response.text.strip()
         except Exception as e:
-            logger.error(f"Gemini Plan Update error: {e}")
+            logger.warning("Gemini plan revision failed; using fallback: %s", e)
 
     return _get_fallback_updated_plan(original_plan, feedback, user_details)

@@ -6,20 +6,6 @@ from typing import Dict, Any
 warnings.filterwarnings("ignore", category=FutureWarning)
 logger = logging.getLogger(__name__)
 
-# Configure Google Gemini API
-API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
-
-try:
-    import google.generativeai as genai
-    if API_KEY:
-        genai.configure(api_key=API_KEY)
-        HAS_GENAI = True
-    else:
-        HAS_GENAI = False
-except Exception as e:
-    logger.warning(f"Google Generative AI package or key init notice: {e}")
-    HAS_GENAI = False
-
 
 def _get_fallback_workout_plan(user_details: Dict[str, Any]) -> str:
     """
@@ -41,7 +27,7 @@ def _get_fallback_workout_plan(user_details: Dict[str, Any]) -> str:
     return f"""================================================================================
 7-DAY PERSONALIZED FITNESS BLUEPRINT FOR {name.upper()}
 Profile: {age} yrs | Weight: {weight} kg | Goal: {goal} | Intensity: {intensity}
-Model: Gemini 1.5 Pro Architecture [Structured Protocol]
+  Model: Local fallback plan [Structured Protocol]
 ================================================================================
 
 [DAY 1: FOUNDATIONAL PUSH & UPPER STRENGTH]
@@ -119,7 +105,7 @@ Log weights, reps, and perceived exertion (RPE). Aim to progressively overload b
 
 def generate_workout_gemini(user_details: Dict[str, Any]) -> str:
     """
-    Generates a structured 7-day personalized workout plan using Google Gemini 1.5 Pro.
+    Generates a structured 7-day personalized workout plan using Google Gemini.
     Falls back reliably if API is not configured or temporary network issue occurs.
     """
     api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
@@ -154,21 +140,17 @@ Requirements:
 
     if api_key:
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=api_key)
-            
-            # Try Gemini 1.5 Pro first as per doc, with fallback to Gemini 1.5 Flash
-            for model_name in ["gemini-1.5-pro", "gemini-1.5-flash", "gemini-pro"]:
-                try:
-                    model = genai.GenerativeModel(model_name)
-                    response = model.generate_content(prompt)
-                    if response and response.text:
-                        return response.text.strip()
-                except Exception as model_err:
-                    logger.warning(f"Model {model_name} failed: {model_err}. Trying next...")
-                    continue
+            from google import genai
+
+            client = genai.Client(api_key=api_key)
+            response = client.models.generate_content(
+                model="gemini-3.8-flash",
+                contents=prompt,
+            )
+            if response and response.text:
+                return response.text.strip()
         except Exception as e:
-            logger.error(f"Gemini API invocation error: {e}")
+            logger.warning("Gemini workout generation failed; using fallback: %s", e)
 
     # Return structured fallback plan if API is unconfigured or failed
     return _get_fallback_workout_plan(user_details)

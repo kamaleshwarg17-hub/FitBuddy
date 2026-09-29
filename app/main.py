@@ -21,7 +21,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="FitBuddy – AI Fitness Plan Generator",
-    description="Intelligent 7-day workout and nutrition plan generator powered by Google Gemini 1.5 Pro and Gemini Flash models.",
+    description="Intelligent 7-day workout and nutrition plan generator powered by Google Gemini 3.8 Flash.",
     version="1.0.0",
     lifespan=lifespan
 )

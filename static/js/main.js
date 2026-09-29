@@ -85,7 +85,7 @@ function initFormLoaders() {
     if (workoutForm && loadingOverlay) {
         workoutForm.addEventListener('submit', () => {
             if (loadingText) {
-                loadingText.innerText = 'Gemini 1.5 Pro is analyzing your profile and generating your 7-Day Blueprint...';
+                loadingText.innerText = 'Gemini 3.8 Flash is analyzing your profile and generating your 7-Day Blueprint...';
             }
             loadingOverlay.style.display = 'flex';
         });
@@ -94,7 +94,7 @@ function initFormLoaders() {
     if (feedbackForm && loadingOverlay) {
         feedbackForm.addEventListener('submit', () => {
             if (loadingText) {
-                loadingText.innerText = 'Gemini 1.5 Pro is revising your workout schedule with your feedback...';
+                loadingText.innerText = 'Gemini 3.8 Flash is revising your workout schedule with your feedback...';
             }
             loadingOverlay.style.display = 'flex';
         });

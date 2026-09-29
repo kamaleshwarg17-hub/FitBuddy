@@ -94,10 +94,10 @@ async def generate_workout(
 
     user_dict = user_input.model_dump()
 
-    # 1. Generate 7-Day Workout Plan via Gemini 1.5 Pro
+    # 1. Generate 7-Day Workout Plan via Gemini 3.8 Flash
     workout_plan = generate_workout_gemini(user_dict)
 
-    # 2. Generate Goal-Specific Nutrition Tip via Gemini Flash
+    # 2. Generate Goal-Specific Nutrition Tip via Gemini 3.8 Flash
     nutrition_tip = generate_nutrition_tip_with_flash(user_input.goal, user_dict)
 
     # 3. Persist User and Plan in Database
